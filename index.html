@@ -12,7 +12,8 @@
   <body>
       <h2>JsJupyter</h2>
     <section>
-    <button id="upload-btn"><i class="bi bi-upload"></i></button>
+    <input id="file-upload" type="file">
+    <label id="upload-btn" for="file-upload"><i class="bi bi-upload"></i></label>
     <button id="download-btn"><i class="bi bi-save"></i></button>
     <button id="add-cell-btn"><i class="bi bi-plus-lg"></i> Code</button>
     <button id="add-cell-text-btn"><i class="bi bi-plus-lg"></i> Text</button>
@@ -204,6 +205,35 @@ runAllBtn.addEventListener("click", () => {
     }
   });
 });
+        
+const downloadBtn = document.getElementById("download-btn");
+downloadBtn.addEventListener("click", () => {
+  const jsonString = JSON.stringify(cells);
+
+  const blob = new Blob([jsonString], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = "JsJupyter.json";
+  link.click();
+  
+  // 
+  URL.revokeObjectURL(url);
+});
+        
+const uploadBtn = document.getElementById("upload-btn");
+  const fileInput = document.getElementById('file-upload');
+  fileInput.addEventListener('change', (event) => {
+  const file = event.target.files[0];
+  const reader = new FileReader();
+  reader.onload = () => {
+    cells = JSON.parse(reader.result);
+    renderNotebook();
+    // 
+  };
+  reader.readAsText(file);
+});
 
 const notebookEl = document.getElementById("notebook");
 notebookEl.addEventListener("click", (event) => {
@@ -243,8 +273,8 @@ notebookEl.addEventListener("click", (event) => {
     display: block;
   }
  section {
-    margin: 2em;
-    padding: 1em;
+    margin: 4vw;
+    padding: 2vw;
     border-radius: 8px;
     background: #fff;
 }
@@ -277,7 +307,23 @@ notebookEl.addEventListener("click", (event) => {
 }
     h2 {
     color: #666;
-    padding-left: 33px;
+    padding-left: 40px;
+}
+    input[type=file] {
+    display: none;
+}
+    label {
+    border-style: none;
+    background: #ddd;
+    border-radius: 4px;
+    margin-left: 4px;
+    padding-inline: 2px;
+    padding-bottom: 1px;
+    position: relative;
+    top: 1px;
+}
+    label:hover {
+    background: #eee;
 }
 </style>
 </body>
