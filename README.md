@@ -1,1 +1,3 @@
 # JsJupyter
+
+![](doc/jsjupyter.png)
