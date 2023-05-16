@@ -1,3 +1,3 @@
 # JsJupyter
 
-![](doc/jsjupyter.png)
+![](doc/jsjupyter1.png)
