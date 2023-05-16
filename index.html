@@ -11,12 +11,12 @@
     <link rel="stylesheet" href="https://www.canvasxpress.org/dist/canvasXpress.css"type="text/css"/>
  <script type="text/javascript"src="https://www.canvasxpress.org/dist/canvasXpress.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.2/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@2.0.0/dist/tf.min.js"></script>
   </head>
   <body>
       <h2>JsJupyter</h2>
     <section>
     <input id="file-upload" type="file">
-    <canvas id="canvas" width="0" height="0"></canvas>
     <label id="upload-btn" for="file-upload"><i class="bi bi-upload"></i></label>
     <button id="download-btn"><i class="bi bi-save"></i></button>
     <button id="add-cell-btn"><i class="bi bi-plus-lg"></i> Code</button>
@@ -31,10 +31,13 @@
     <script>
       let currentCellIndex = 0;
       let cells = [
-        { type: "text", content: "This is a text cell"},
-        { type: "code", content: "console.log('Hello, World!')", output:"Hello, World!" },
+        { type: "text", content: "This is a text cell", img:""},
+        { type: "code", content: "console.log('Hello, World!')", output:"Hello, World!", img:"" },
       ];
-
+     let __prevDataUrl = "";
+        
+     let _black = "data:image/png;base64,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";
+     
       const renderCell = (cell, index) => {
         const cellEl = document.createElement("div");
         cellEl.className = "block";
@@ -75,6 +78,14 @@
         const outputEl = document.createElement("div");
         outputEl.classList.add("output");
         outputEl.innerText = output;
+        
+        if(cell.img != ""){
+            let imgElement = document.createElement("img");
+            imgElement.src = cell.img;
+            imgElement.className = "img"
+            cellEl.appendChild(imgElement);
+        }
+            
         if(output != ""){
             cellEl.appendChild(outputEl);
         }
@@ -90,6 +101,18 @@
             let output = "";
             const outputEl = document.createElement("div");
             outputEl.classList.add("output");
+            
+            let mycanvas = cellEl.querySelector("#canvas");
+            if(mycanvas!=null){
+                mycanvas.remove();
+            }
+            const canvasEl = document.createElement("canvas");
+            canvasEl.height = 400;
+            canvasEl.width = 400;
+            canvasEl.id = "canvas";
+            cellEl.append(canvasEl);
+            //const canvas = document.getElementById("canvas");  
+            
             try {
               //const output = eval(cell.content);
               const fn = new Function(cell.content);
@@ -105,14 +128,43 @@
               outputEl.innerText = err.message;
               cell.output = err.message;
             }
+              
+            function detectCanvasChange(canvas) {
+                let currentDataUrl = canvas.toDataURL();
+                if (currentDataUrl !== __prevDataUrl) {
+                    __prevDataUrl = currentDataUrl;
+                    return true;
+                }
+                return false;
+            }
+            
+
+            let base64Img = canvas.toDataURL("image/png");
+            let imgElement = document.createElement("img");
+            imgElement.src = base64Img;
+            imgElement.className = "img"
+            const imgDiv = cellEl.querySelector(".img");
+              
+            if(imgDiv){
+                imgDiv.remove();
+            }
+
+            if( detectCanvasChange(canvas) ){
+                if(base64Img!=_black){
+                    cellEl.appendChild(imgElement);
+                    cell.img = base64Img;
+                }
+            }
+
             const outputDiv = cellEl.querySelector(".output");
-            if (outputDiv) {
-                outputDiv.remove();
+            if(cell.output != ""){
+                if (outputDiv) {
+                    outputDiv.remove();
+                }
                 cellEl.appendChild(outputEl);
             }
-            else{
-            cellEl.appendChild(outputEl);
-            }
+              
+            renderNotebook();
           });
           //cellEl.appendChild(runBtn);
         cellCont.insertBefore(runBtn, cellCont.firstChild);
@@ -178,6 +230,9 @@
       };
 
       const renderNotebook = () => {
+        //record current scroll
+        const currentScrollPosition = window.scrollY;
+          
         const notebookEl = document.getElementById("notebook");
         notebookEl.innerHTML = "";
 
@@ -186,13 +241,15 @@
          
         notebookEl.appendChild(cellEl);
     });
+        //recover scroll
+        window.scrollTo(0, currentScrollPosition);
   };
 
   renderNotebook();
 
-  const addCellBtn = document.getElementById("add-cell-btn");
+const addCellBtn = document.getElementById("add-cell-btn");
   addCellBtn.addEventListener("click", () => {
-  cells.splice(currentCellIndex + 1, 0, { type: "code", content: "", output: "" });
+  cells.splice(currentCellIndex + 1, 0, { type: "code", content: "", output: "", img: "" });
   currentCellIndex += 1;
   renderNotebook();
 });
@@ -239,7 +296,7 @@ downloadBtn.addEventListener("click", () => {
 
   const link = document.createElement('a');
   link.href = url;
-  link.download = "JsJupyter.json";
+  link.download = "JsJupyter.ijsnb";
   link.click();
   
   // 清除临时 URL
@@ -287,7 +344,7 @@ notebookEl.addEventListener("click", (event) => {
   .output {
     margin-top: 10px;
     padding: 5px;
-    background-color: lightgray;
+    background-color: #dddddd50;
     font-size: 12px;
     box-shadow: 0px 2px 2px #b9b1b1;
     font-family: monaco;
@@ -353,6 +410,16 @@ notebookEl.addEventListener("click", (event) => {
     label:hover {
     background: #eee;
 }
+    #canvas {
+    display: none;
+    }
+    #container-canvas {
+    display: none;
+    }
+    img {
+    height: 400px;
+    width: 400px;
+    }
 </style>
 </body>
 </html>
